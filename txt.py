@@ -62,11 +62,11 @@ def search_amazon_in_product(query):
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
 
-        first_product_image = soup.find('img', class_='s-image')
+        first_product = soup.find('h2', class_='a-size-mini s-line-clamp-1')
 
-        if first_product_image and 'alt' in first_product_image.attrs:
-            product_title = first_product_image['alt']
-            print("First Product Title:", product_title)
+        if first_product and 'span' in first_product.attrs:
+            product_title = first_product['class': 'a-price-whole']
+            print("First Product Price:", product_title)
         else:
             print("No product title found on the page.")
 
