@@ -19,10 +19,22 @@ def get_title(soup):
 	return title_string
 
 # Function to extract Product Price
-def get_price(soup):
+def get_beforeprice(soup):
 
 	try:
 		price = soup.find("span", attrs={'class':'a-price a-text-price a-size-medium apexPriceToPay'}).find("span", attrs={'class':'a-offscreen'}).text
+		
+
+	except AttributeError:
+		price = ""	
+
+	return price
+
+
+def get_price(soup):
+
+	try:
+		price = soup.find("span", attrs={'class':'a-price a-text-price a-size-medium apexPriceToPay'}).find("span", attrs={'aria-hidden':'true'}).text
 		
 
 	except AttributeError:
@@ -80,7 +92,8 @@ if __name__ == '__main__':
 	soup = BeautifulSoup(webpage.content, "lxml")
 
 	print("Product Title =", get_title(soup))
-	print("Product Price =", get_price(soup))
+	print("Product Price Before Offer =", get_beforeprice(soup))
+	print("Product Price After Offer =", get_price(soup))
 	print("Product Rating =", get_rating(soup))
 	print("Number of Product Reviews =", get_review_count(soup))
 	print("Availability =", get_availability(soup))
