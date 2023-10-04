@@ -1,7 +1,8 @@
+from urllib import response
 import requests
 from bs4 import BeautifulSoup
 
-def search_amazon_in(query):
+def search_amazon_in(query, page=1):
     try:
         headers = {
             'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:95.0) Gecko/20100101 Firefox/95.0',
@@ -10,7 +11,8 @@ def search_amazon_in(query):
         }
 
         params = {
-            "k": query
+            "k": query,
+            "page": page  # Add page parameter to specify the page number
         }
 
         response = requests.get('https://www.amazon.in/s', headers=headers, params=params)
@@ -28,6 +30,7 @@ def search_amazon_in(query):
     except Exception as e:
         print(f"An error occurred while searching: {str(e)}")
         return None
+    
 
 def scrape_amazon_product(url):
     try:
@@ -89,24 +92,32 @@ def scrape_amazon_product(url):
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return {}
+    
 
 if __name__ == '__main__':
     search_query = input("Enter the product you want to search for on Amazon.in: ")
+    page = 1
 
-    product_urls = search_amazon_in(search_query)
+    while True:
+        product_urls = search_amazon_in(search_query, page)
 
-    if product_urls:
+        if not product_urls:
+            print("No more search results found.")
+            break
+
         for product_url in product_urls:
             product_info = scrape_amazon_product(product_url)
             print("Product Details:")
             for key, value in product_info.items():
                 print(f"{key}: {value}")
             print("\n")
-    else:
-        print("No search results found.")
 
-
-
-
-
-
+        next_button = response.find("li", {"class": "a-last"})
+        if next_button and "s-pagination-disabled" not in next_button.get("class", []):
+            user_choice = input("Do you want to go to the next page? (yes/no): ")
+            if user_choice.lower() != "yes":
+                break
+            page += 1
+        else:
+            print("No more pages available.")
+            break
