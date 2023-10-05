@@ -1,4 +1,3 @@
-from urllib import response
 import requests
 from bs4 import BeautifulSoup
 
@@ -12,7 +11,7 @@ def search_amazon_in(query, page=1):
 
         params = {
             "k": query,
-            "page": page  # Add page parameter to specify the page number
+            "page": page  
         }
 
         response = requests.get('https://www.amazon.in/s', headers=headers, params=params)
@@ -23,14 +22,13 @@ def search_amazon_in(query, page=1):
 
         if product_links:
             product_urls = ["https://www.amazon.in" + link['href'] for link in product_links]
-            return product_urls
+            return product_urls, soup
         else:
-            return None
+            return None, None
 
     except Exception as e:
         print(f"An error occurred while searching: {str(e)}")
-        return None
-    
+        return None, None
 
 def scrape_amazon_product(url):
     try:
@@ -86,20 +84,18 @@ def scrape_amazon_product(url):
             'Number of Product Reviews': product_reviews,
             'Availability': product_availability
         }
-
         return product_data
 
     except Exception as e:
-        print(f"An error occurred: {str(e)}")
+        # print(f"An error occurred: {str(e)}")
         return {}
-    
 
 if __name__ == '__main__':
     search_query = input("Enter the product you want to search for on Amazon.in: ")
     page = 1
 
     while True:
-        product_urls = search_amazon_in(search_query, page)
+        product_urls, soup = search_amazon_in(search_query, page)
 
         if not product_urls:
             print("No more search results found.")
@@ -107,17 +103,19 @@ if __name__ == '__main__':
 
         for product_url in product_urls:
             product_info = scrape_amazon_product(product_url)
-            print("Product Details:")
+            # print("Product Details:")
             for key, value in product_info.items():
                 print(f"{key}: {value}")
             print("\n")
 
-        next_button = response.find("li", {"class": "a-last"})
-        if next_button and "s-pagination-disabled" not in next_button.get("class", []):
+        next_button = soup.find("div", {"class": "s-pagination-container"})
+        if next_button and "s-pagination-item" not in next_button.get("class", []):
             user_choice = input("Do you want to go to the next page? (yes/no): ")
             if user_choice.lower() != "yes":
+                print("Ended")
                 break
             page += 1
+            
         else:
             print("No more pages available.")
             break
