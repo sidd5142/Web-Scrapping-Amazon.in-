@@ -1,5 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
 
 def search_amazon_in(query):
     try:
@@ -36,6 +38,13 @@ def scrape_amazon_product(url):
         }
 
         response = requests.get(url, headers=headers)
+
+        driver = webdriver.Chrome()
+
+        driver.get(url)
+        wait = WebDriverWait(driver,10)
+        print("Enter any key to quit:")
+        driver.quit()
 
         soup = BeautifulSoup(response.content, 'html.parser')
 
